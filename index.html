@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MMJ APPS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=MS+Sans+Serif&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --win-bg: #c0c0c0;
+    --win-dark: #808080;
+    --win-darker: #404040;
+    --win-light: #dfdfdf;
+    --win-white: #ffffff;
+    --win-title: #000080;
+    --win-title-inactive: #808080;
+    --teal: #008080;
+    --win-btn-face: #c0c0c0;
+  }
+
+  body {
+    background: #008080;
+    font-family: 'VT323', 'MS Sans Serif', Arial, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: default;
+    image-rendering: pixelated;
+  }
+
+  /* === DESKTOP === */
+  .desktop {
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+  }
+
+  /* === DESKTOP ICONS === */
+  .desktop-icons {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 24px;
+    max-height: calc(100vh - 80px);
+    align-content: flex-start;
+  }
+
+  .desktop-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90px;
+    cursor: pointer;
+    padding: 4px;
+    border: 1px solid transparent;
+    user-select: none;
+    transition: none;
+  }
+
+  .desktop-icon:hover .icon-label,
+  .desktop-icon:focus .icon-label {
+    background: #000080;
+    color: #fff;
+  }
+
+  .desktop-icon:active .icon-img {
+    filter: brightness(0.7) contrast(1.5);
+  }
+
+  .icon-img {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    background: var(--win-bg);
+    border: 2px outset var(--win-white);
+    position: relative;
+  }
+
+  .icon-label {
+    font-size: 14px;
+    color: #fff;
+    text-align: center;
+    padding: 2px 4px;
+    line-height: 1.2;
+    text-shadow: 1px 1px 1px #000, -1px -1px 1px #000, 1px -1px 1px #000, -1px 1px 1px #000;
+    word-wrap: break-word;
+    max-width: 85px;
+  }
+
+  /* === WIN386 WINDOW === */
+  .win-window {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--win-bg);
+    border: 2px outset var(--win-white);
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+    min-width: 680px;
+    max-width: 95vw;
+    z-index: 100;
+    display: none;
+  }
+
+  .win-window.active {
+    display: block;
+    animation: winOpen 0.15s ease-out;
+  }
+
+  @keyframes winOpen {
+    0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
+
+  .win-titlebar {
+    background: var(--win-title);
+    color: #fff;
+    padding: 3px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: default;
+  }
+
+  .win-titlebar-text {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .win-titlebar-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .win-titlebar-buttons {
+    display: flex;
+    gap: 2px;
+  }
+
+  .win-btn {
+    width: 20px;
+    height: 18px;
+    background: var(--win-bg);
+    border: 2px outset var(--win-white);
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: 'VT323', monospace;
+    font-weight: bold;
+    line-height: 1;
+    padding: 0;
+  }
+
+  .win-btn:active {
+    border-style: inset;
+  }
+
+  .win-menubar {
+    background: var(--win-bg);
+    border-bottom: 1px solid var(--win-dark);
+    padding: 2px 0;
+    display: flex;
+    gap: 0;
+  }
+
+  .win-menu-item {
+    padding: 2px 8px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #000;
+  }
+
+  .win-menu-item:hover {
+    background: var(--win-title);
+    color: #fff;
+  }
+
+  .win-statusbar {
+    background: var(--win-bg);
+    border-top: 1px solid var(--win-dark);
+    padding: 2px 6px;
+    font-size: 13px;
+    color: #444;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .win-statusbar-section {
+    border: 1px inset var(--win-white);
+    padding: 1px 6px;
+    flex: 1;
+  }
+
+  /* === APP GRID INSIDE WINDOW === */
+  .app-grid-container {
+    padding: 16px;
+    background: var(--win-bg);
+    overflow-y: auto;
+    max-height: 65vh;
+  }
+
+  .app-grid-header {
+    font-size: 22px;
+    margin-bottom: 4px;
+    color: #000080;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .app-grid-subheader {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--win-dark);
+  }
+
+  .app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .app-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 8px 10px;
+    background: var(--win-bg);
+    border: 2px outset var(--win-white);
+    cursor: pointer;
+    text-align: center;
+    transition: none;
+  }
+
+  .app-card:hover {
+    background: #a0c0f0;
+  }
+
+  .app-card:active {
+    border-style: inset;
+    background: #80a0d0;
+  }
+
+  .app-card-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin-bottom: 8px;
+    background: #fff;
+    border: 1px inset var(--win-dark);
+    position: relative;
+  }
+
+  .app-card-icon .pixel-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #ff0000;
+    color: #fff;
+    font-size: 8px;
+    padding: 1px 3px;
+    font-family: 'Press Start 2P', monospace;
+  }
+
+  .app-card-name {
+    font-size: 13px;
+    font-weight: bold;
+    color: #000;
+    line-height: 1.2;
+  }
+
+  .app-card-desc {
+    font-size: 11px;
+    color: #666;
+    margin-top: 2px;
+  }
+
+  /* === SPLASH / BOOT SCREEN === */
+  .boot-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #000;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #c0c0c0;
+    font-family: 'VT323', monospace;
+  }
+
+  .boot-screen.hidden {
+    display: none;
+  }
+
+  .boot-logo {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 32px;
+    color: #fff;
+    margin-bottom: 20px;
+    letter-spacing: 4px;
+    text-align: center;
+    animation: bootFlicker 0.1s infinite;
+  }
+
+  @keyframes bootFlicker {
+    0%, 95%, 100% { opacity: 1; }
+    96% { opacity: 0.7; }
+  }
+
+  .boot-text {
+    font-size: 18px;
+    color: #aaa;
+    margin: 2px 0;
+  }
+
+  .boot-progress-container {
+    width: 300px;
+    height: 20px;
+    border: 2px inset var(--win-white);
+    background: #000;
+    margin-top: 20px;
+    position: relative;
+  }
+
+  .boot-progress-bar {
+    height: 100%;
+    background: #000080;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  .boot-cursor {
+    display: inline-block;
+    animation: blink 0.5s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  /* === TASKBAR === */
+  .taskbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 36px;
+    background: var(--win-bg);
+    border-top: 2px outset var(--win-white);
+    display: flex;
+    align-items: center;
+    padding: 2px 4px;
+    z-index: 500;
+    gap: 4px;
+  }
+
+  .start-btn {
+    background: var(--win-bg);
+    border: 2px outset var(--win-white);
+    padding: 2px 10px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 28px;
+  }
+
+  .start-btn:active {
+    border-style: inset;
+  }
+
+  .start-btn .start-logo {
+    font-size: 16px;
+  }
+
+  .taskbar-divider {
+    width: 2px;
+    height: 24px;
+    border-left: 1px solid var(--win-dark);
+    border-right: 1px solid var(--win-white);
+    margin: 0 2px;
+  }
+
+  .taskbar-app {
+    background: var(--win-bg);
+    border: 2px inset var(--win-white);
+    padding: 2px 10px;
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    cursor: pointer;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 160px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .taskbar-clock {
+    margin-left: auto;
+    background: var(--win-bg);
+    border: 1px inset var(--win-white);
+    padding: 2px 10px;
+    font-size: 14px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* === START MENU === */
+  .start-menu {
+    position: fixed;
+    bottom: 36px;
+    left: 0;
+    background: var(--win-bg);
+    border: 2px outset var(--win-white);
+    width: 220px;
+    z-index: 600;
+    display: none;
+  }
+
+  .start-menu.visible {
+    display: block;
+    animation: menuSlide 0.1s ease-out;
+  }
+
+  @keyframes menuSlide {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .start-menu-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 28px;
+    background: linear-gradient(to top, #000080, #1084d0);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 6px;
+  }
+
+  .start-menu-sidebar-text {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    color: #c0c0c0;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+  }
+
+  .start-menu-items {
+    margin-left: 28px;
+    padding: 4px 0;
+  }
+
+  .start-menu-item {
+    padding: 6px 12px;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #000;
+  }
+
+  .start-menu-item:hover {
+    background: var(--win-title);
+    color: #fff;
+  }
+
+  .start-menu-divider {
+    height: 1px;
+    background: var(--win-dark);
+    margin: 2px 28px 2px 28px;
+    border-bottom: 1px solid var(--win-white);
+  }
+
+  /* === SCROLLBAR === */
+  ::-webkit-scrollbar { width: 18px; }
+  ::-webkit-scrollbar-track {
+    background: repeating-conic-gradient(var(--win-bg) 0% 25%, var(--win-white) 0% 50%) 50% / 2px 2px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--win-bg);
+    border: 2px outset var(--win-white);
+  }
+  ::-webkit-scrollbar-button {
+    background: var(--win-bg);
+    border: 2px outset var(--win-white);
+    height: 18px;
+  }
+
+  /* === DIALOG / ABOUT === */
+  .dialog-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.3);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dialog-overlay.visible {
+    display: flex;
+  }
+
+  .dialog-box {
+    background: var(--win-bg);
+    border: 2px outset var(--win-white);
+    min-width: 340px;
+    max-width: 90vw;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+  }
+
+  .dialog-titlebar {
+    background: var(--win-title);
+    color: #fff;
+    padding: 3px 6px;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .dialog-body {
+    padding: 16px;
+    font-size: 15px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .dialog-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+  }
+
+  .dialog-text {
+    flex: 1;
+  }
+
+  .dialog-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 16px 12px;
+  }
+
+  .dialog-btn {
+    background: var(--win-bg);
+    border: 2px outset var(--win-white);
+    padding: 4px 24px;
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  .dialog-btn:active {
+    border-style: inset;
+  }
+
+  .dialog-btn:focus {
+    outline: 1px dotted #000;
+    outline-offset: -4px;
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 720px) {
+    .win-window {
+      min-width: 95vw;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .win-window.active {
+      transform: translateX(-50%);
+    }
+    @keyframes winOpen {
+      0% { transform: translateX(-50%) scale(0.8); opacity: 0; }
+      100% { transform: translateX(-50%) scale(1); opacity: 1; }
+    }
+    .app-grid {
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 8px;
+    }
+    .desktop-icons { display: none; }
+    .boot-logo { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- BOOT SCREEN -->
+<div class="boot-screen" id="bootScreen">
+  <div class="boot-logo">MMJ APPS</div>
+  <div class="boot-text">MMJ System Version 3.86</div>
+  <div class="boot-text" id="bootMemory">Memory Test: 640K OK</div>
+  <div class="boot-text" id="bootLine1" style="display:none;">Loading MMJ Kernel...</div>
+  <div class="boot-text" id="bootLine2" style="display:none;">Initializing AI Module... OK</div>
+  <div class="boot-text" id="bootLine3" style="display:none;">Loading Social Framework... OK</div>
+  <div class="boot-text" id="bootLine4" style="display:none;">Mounting Minecraft Volume... OK</div>
+  <div class="boot-text" id="bootLine5" style="display:none;">Starting Academy Services... OK</div>
+  <div class="boot-text" id="bootLine6" style="display:none;">Code Interpreter Ready... OK</div>
+  <div class="boot-text" id="bootLine7" style="display:none;">Search Index Loaded... OK</div>
+  <div class="boot-progress-container">
+    <div class="boot-progress-bar" id="bootProgress"></div>
+  </div>
+</div>
+
+<!-- DIALOG / ABOUT -->
+<div class="dialog-overlay" id="aboutDialog">
+  <div class="dialog-box">
+    <div class="dialog-titlebar">
+      <span>About MMJ APPS</span>
+      <div class="win-btn" onclick="closeDialog()">&#10005;</div>
+    </div>
+    <div class="dialog-body">
+      <div class="dialog-icon">💻</div>
+      <div class="dialog-text">
+        <strong>MMJ APPS</strong><br>
+        Version 3.86 Build 2025<br><br>
+        Your all-in-one app suite powered by MMJ.<br>
+        AI Assistant • Social Media • Minecraft<br>
+        Academy • Learn Code • Search<br><br>
+        © 2025 MMJ Gaming. All rights reserved.
+      </div>
+    </div>
+    <div class="dialog-buttons">
+      <button class="dialog-btn" onclick="closeDialog()">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN WINDOW -->
+<div class="win-window active" id="mainWindow">
+  <div class="win-titlebar">
+    <div class="win-titlebar-text">
+      <div class="win-titlebar-icon">📱</div>
+      <span>MMJ APPS - Program Manager</span>
+    </div>
+    <div class="win-titlebar-buttons">
+      <div class="win-btn" title="Minimize">_</div>
+      <div class="win-btn" title="Maximize">□</div>
+      <div class="win-btn" title="Close">&#10005;</div>
+    </div>
+  </div>
+  <div class="win-menubar">
+    <div class="win-menu-item" onclick="showAbout()">File</div>
+    <div class="win-menu-item">Edit</div>
+    <div class="win-menu-item">View</div>
+    <div class="win-menu-item" onclick="showAbout()">Help</div>
+  </div>
+  <div class="app-grid-container">
+    <div class="app-grid-header">
+      📀 MMJ APPS Suite
+    </div>
+    <div class="app-grid-subheader">
+      Select an application to launch &mdash; 7 programs available
+    </div>
+    <div class="app-grid">
+
+      <!-- AI Assistant -->
+      <a href="https://mmjplaysyt.github.io/AI-Asistent/" target="_blank" style="text-decoration:none;color:inherit;">
+        <div class="app-card">
+          <div class="app-card-icon">
+            🤖
+            <span class="pixel-badge">AI</span>
+          </div>
+          <div class="app-card-name">AI Assistant</div>
+          <div class="app-card-desc">Smart chat bot</div>
+        </div>
+      </a>
+
+      <!-- Social Media -->
+      <a href="https://mmjplaysyt.github.io/social-media/" target="_blank" style="text-decoration:none;color:inherit;">
+        <div class="app-card">
+          <div class="app-card-icon">
+            💬
+            <span class="pixel-badge">NEW</span>
+          </div>
+          <div class="app-card-name">Social Media</div>
+          <div class="app-card-desc">Connect & share</div>
+        </div>
+      </a>
+
+      <!-- Webpage / Minecraft -->
+      <a href="https://mmjplaysyt.work.gd/Minecraft" target="_blank" style="text-decoration:none;color:inherit;">
+        <div class="app-card">
+          <div class="app-card-icon">
+            🌐
+          </div>
+          <div class="app-card-name">Webpage</div>
+          <div class="app-card-desc">MMJ Website</div>
+        </div>
+      </a>
+
+      <!-- Minecraft -->
+      <a href="https://mmjgaming.github.io/Minecraft-/" target="_blank" style="text-decoration:none;color:inherit;">
+        <div class="app-card">
+          <div class="app-card-icon">
+            ⛏️
+            <span class="pixel-badge">MC</span>
+          </div>
+          <div class="app-card-name">Minecraft</div>
+          <div class="app-card-desc">Play & explore</div>
+        </div>
+      </a>
+
+      <!-- Academy -->
+      <a href="https://mmjgaming.github.io/academy/" target="_blank" style="text-decoration:none;color:inherit;">
+        <div class="app-card">
+          <div class="app-card-icon">
+            🎓
+          </div>
+          <div class="app-card-name">Academy</div>
+          <div class="app-card-desc">Learn & grow</div>
+        </div>
+      </a>
+
+      <!-- Learn Code -->
+      <a href="https://mmjplaysyt.github.io/code-org/" target="_blank" style="text-decoration:none;color:inherit;">
+        <div class="app-card">
+          <div class="app-card-icon">
+            💻
+            <span class="pixel-badge">&lt;/&gt;</span>
+          </div>
+          <div class="app-card-name">Learn Code</div>
+          <div class="app-card-desc">Code tutorials</div>
+        </div>
+      </a>
+
+      <!-- Search -->
+      <a href="https://mmjplaysyt.github.io/search" target="_blank" style="text-decoration:none;color:inherit;">
+        <div class="app-card">
+          <div class="app-card-icon">
+            🔍
+          </div>
+          <div class="app-card-name">Search</div>
+          <div class="app-card-desc">Find anything</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+  <div class="win-statusbar">
+    <div class="win-statusbar-section">7 app(s) available</div>
+    <div class="win-statusbar-section" style="flex:0;min-width:120px;text-align:right;" id="statusClock"></div>
+  </div>
+</div>
+
+<!-- TASKBAR -->
+<div class="taskbar">
+  <div class="start-btn" id="startBtn" onclick="toggleStartMenu()">
+    <span class="start-logo">🖥️</span> Start
+  </div>
+  <div class="taskbar-divider"></div>
+  <div class="taskbar-app" onclick="focusWindow()">
+    📱 MMJ APPS
+  </div>
+  <div class="taskbar-clock" id="taskbarClock">12:00 AM</div>
+</div>
+
+<!-- START MENU -->
+<div class="start-menu" id="startMenu">
+  <div class="start-menu-sidebar">
+    <div class="start-menu-sidebar-text">MMJ APPS</div>
+  </div>
+  <div class="start-menu-items">
+    <div class="start-menu-item" onclick="openApp('https://mmjplaysyt.github.io/AI-Asistent/')">🤖 AI Assistant</div>
+    <div class="start-menu-item" onclick="openApp('https://mmjplaysyt.github.io/social-media/')">💬 Social Media</div>
+    <div class="start-menu-item" onclick="openApp('https://mmjplaysyt.work.gd/Minecraft')">🌐 Webpage</div>
+    <div class="start-menu-item" onclick="openApp('https://mmjgaming.github.io/Minecraft-/')">⛏️ Minecraft</div>
+    <div class="start-menu-item" onclick="openApp('https://mmjgaming.github.io/academy/')">🎓 Academy</div>
+    <div class="start-menu-item" onclick="openApp('https://mmjplaysyt.github.io/code-org/')">💻 Learn Code</div>
+    <div class="start-menu-item" onclick="openApp('https://mmjplaysyt.github.io/search')">🔍 Search</div>
+    <div class="start-menu-divider"></div>
+    <div class="start-menu-item" onclick="showAbout()">ℹ️ About MMJ APPS</div>
+  </div>
+</div>
+
+<script>
+  // === BOOT SEQUENCE ===
+  const bootLines = ['bootLine1','bootLine2','bootLine3','bootLine4','bootLine5','bootLine6','bootLine7'];
+  let bootStep = 0;
+  const bootProgress = document.getElementById('bootProgress');
+
+  function bootSequence() {
+    if (bootStep < bootLines.length) {
+      document.getElementById(bootLines[bootStep]).style.display = 'block';
+      bootProgress.style.width = ((bootStep + 1) / bootLines.length * 100) + '%';
+      bootStep++;
+      setTimeout(bootSequence, 350 + Math.random() * 250);
+    } else {
+      setTimeout(() => {
+        document.getElementById('bootScreen').classList.add('hidden');
+      }, 500);
+    }
+  }
+
+  setTimeout(bootSequence, 600);
+
+  // === CLOCK ===
+  function updateClock() {
+    const now = new Date();
+    const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    document.getElementById('taskbarClock').textContent = time;
+    const statusClock = document.getElementById('statusClock');
+    if (statusClock) statusClock.textContent = time;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // === START MENU ===
+  function toggleStartMenu() {
+    document.getElementById('startMenu').classList.toggle('visible');
+  }
+
+  document.addEventListener('click', (e) => {
+    const startMenu = document.getElementById('startMenu');
+    const startBtn = document.getElementById('startBtn');
+    if (!startMenu.contains(e.target) && !startBtn.contains(e.target)) {
+      startMenu.classList.remove('visible');
+    }
+  });
+
+  // === OPEN APP ===
+  function openApp(url) {
+    document.getElementById('startMenu').classList.remove('visible');
+    window.open(url, '_blank');
+  }
+
+  // === ABOUT DIALOG ===
+  function showAbout() {
+    document.getElementById('startMenu').classList.remove('visible');
+    document.getElementById('aboutDialog').classList.add('visible');
+  }
+
+  function closeDialog() {
+    document.getElementById('aboutDialog').classList.remove('visible');
+  }
+
+  // === FOCUS WINDOW ===
+  function focusWindow() {
+    const win = document.getElementById('mainWindow');
+    win.style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
